@@ -42,6 +42,29 @@ The **Lightbar** tab allows you to change the color of the lighbar on DualShock 
 
 The **Touchpad** tab allows configuration of the touchpad on DualShock 4 controllers to be output as mouse or controller movement.
 
+#### Touchpad Emulation Mode
+DS4Windows includes an advanced **Emulation** touchpad mode that allows you to control the virtual touchpad using mapped button actions. This feature is particularly useful for controllers without physical touchpads (Xbox 360, Xbox One, etc.).
+
+**Requirements:**
+- **ViGEmBus Driver**: Version 1.17 or higher required for touchpad emulation functionality
+
+**How It Works:**
+- **TouchLeft**: Maps to left side of touchpad (X: 240, Y: 235)
+- **TouchpadClick**: Maps to center of touchpad (X: 960, Y: 471)
+- **TouchRight**: Maps to right side of touchpad (X: 1680, Y: 235)
+- **Physical touchpad disabled**: Only mapped actions control the virtual touchpad
+
+**Setup Instructions:**
+1. Ensure ViGEmBus driver version 1.17 or higher is installed
+2. Set **Touchpad Output Mode** to "Emulation" in profile settings
+3. Map buttons (Share, Options, etc.) to **TouchLeft**, **TouchRight**, or **TouchpadClick** actions
+4. Games will receive proper touchpad input from mapped buttons
+
+**Use Cases:**
+- Controllers without physical touchpads (Xbox 360, Xbox One, etc.)
+- Games requiring touchpad input on PlayStation controllers
+- Custom touchpad zone mapping for specific game requirements
+
 The **Gyro** tab contains the gyro settings and allows you to assign specfic commands to certain tiling actions.
 
 The **Other** tab contains the settings for which controller is being emulated, rumble percentage, and the polling rate.

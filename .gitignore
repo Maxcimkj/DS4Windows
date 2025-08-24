@@ -332,3 +332,9 @@ ASALocalRun/
 !DS4Windows/libs/x64/
 !DS4Windows/libs/x86/
 
+# DS4Windows publish artifacts
+DS4Windows_Distribution_x64/
+DS4Windows_Distribution_x86/
+DS4Windows_v*_x64.zip
+DS4Windows_v*_x86.zip
+

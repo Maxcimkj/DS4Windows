@@ -47,6 +47,12 @@ namespace DS4WinWPF.DS4Forms.ViewModels
         public bool SwipeTouchSwitchProfile { get => DS4Windows.Global.SwipeProfiles;
             set => DS4Windows.Global.SwipeProfiles = value; }
 
+        public bool EnableTouchpadViGEmLogging
+        {
+            get => DS4Windows.Global.EnableTouchpadViGEmLogging;
+            set => DS4Windows.Global.EnableTouchpadViGEmLogging = value;
+        }
+
         private bool runAtStartup;
         public bool RunAtStartup
         {

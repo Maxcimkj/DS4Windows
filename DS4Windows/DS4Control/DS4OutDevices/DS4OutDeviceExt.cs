@@ -41,6 +41,78 @@ namespace DS4Windows
         public Dictionary<int, ReceivedOutBufferHandler> outBufferFeedbacksDict =
             new Dictionary<int, ReceivedOutBufferHandler>();
         private CancellationTokenSource tokenSource;
+        
+        // State tracking for touchpad ViGEm report logging
+        private byte lastTouchPacketsN = 0;
+        private byte lastTouchPacketCounter = 0;
+        private byte lastTouch1TrackingNum = 0;
+        private byte lastTouch1Data0 = 0;
+        private byte lastTouch1Data1 = 0;
+        private byte lastTouch1Data2 = 0;
+        private byte lastTouch2TrackingNum = 0;
+        private byte lastTouch2Data0 = 0;
+        private byte lastTouch2Data1 = 0;
+        private byte lastTouch2Data2 = 0;
+        
+        private void LogTouchpadCoordinateChanges(DS4_REPORT_EX outDS4Report, int device)
+        {
+            unsafe
+            {
+                // Only log if touchpad ViGEm logging is enabled
+                if (!Global.EnableTouchpadViGEmLogging)
+                    return;
+                    
+                // Check if any touchpad data changed
+                bool touchPacketsChanged = (lastTouchPacketsN != outDS4Report.bTouchPacketsN);
+                bool packetCounterChanged = (lastTouchPacketCounter != outDS4Report.sCurrentTouch.bPacketCounter);
+                bool touch1Changed = (lastTouch1TrackingNum != outDS4Report.sCurrentTouch.bIsUpTrackingNum1 ||
+                                     lastTouch1Data0 != outDS4Report.sCurrentTouch.bTouchData1[0] ||
+                                     lastTouch1Data1 != outDS4Report.sCurrentTouch.bTouchData1[1] ||
+                                     lastTouch1Data2 != outDS4Report.sCurrentTouch.bTouchData1[2]);
+                bool touch2Changed = (lastTouch2TrackingNum != outDS4Report.sCurrentTouch.bIsUpTrackingNum2 ||
+                                     lastTouch2Data0 != outDS4Report.sCurrentTouch.bTouchData2[0] ||
+                                     lastTouch2Data1 != outDS4Report.sCurrentTouch.bTouchData2[1] ||
+                                     lastTouch2Data2 != outDS4Report.sCurrentTouch.bTouchData2[2]);
+                
+                // Get current cState for comparison
+                DS4State cState = Program.rootHub.getDS4State(device);
+                
+
+                
+                // Log both touches when any touchpad state changes
+                if (touch1Changed || touch2Changed || touchPacketsChanged || packetCounterChanged)
+                {
+                    // Log Touch1 (first touch point)
+                    bool touch1Active = (outDS4Report.sCurrentTouch.bIsUpTrackingNum1 & 0x80) == 0;
+                    byte touch1TrackingNum = (byte)(outDS4Report.sCurrentTouch.bIsUpTrackingNum1 & 0x7F);
+                    short touch1X = (short)(outDS4Report.sCurrentTouch.bTouchData1[0] | ((outDS4Report.sCurrentTouch.bTouchData1[1] & 0x0F) << 8));
+                    short touch1Y = (short)((outDS4Report.sCurrentTouch.bTouchData1[1] >> 4) | (outDS4Report.sCurrentTouch.bTouchData1[2] << 4));
+                    
+                    // Log Touch2 (second touch point)
+                    bool touch2Active = (outDS4Report.sCurrentTouch.bIsUpTrackingNum2 & 0x80) == 0;
+                    byte touch2TrackingNum = (byte)(outDS4Report.sCurrentTouch.bIsUpTrackingNum2 & 0x7F);
+                    short touch2X = (short)(outDS4Report.sCurrentTouch.bTouchData2[0] | ((outDS4Report.sCurrentTouch.bTouchData2[1] & 0x0F) << 8));
+                    short touch2Y = (short)((outDS4Report.sCurrentTouch.bTouchData2[1] >> 4) | (outDS4Report.sCurrentTouch.bTouchData2[2] << 4));
+                    
+                    // Log both ViGEm and cState touchpad data
+                    AppLogger.LogToGui($"ViGEm Touchpad [Device {device + 1}]: Touch1(Active:{touch1Active}, Track:{touch1TrackingNum}, Pos:({touch1X},{touch1Y})) Touch2(Active:{touch2Active}, Track:{touch2TrackingNum}, Pos:({touch2X},{touch2Y})) | cState: Touch0(Active:{cState.TrackPadTouch0.IsActive}, Track:{cState.TrackPadTouch0.Id}, Pos:({cState.TrackPadTouch0.X},{cState.TrackPadTouch0.Y})) Touch1(Active:{cState.TrackPadTouch1.IsActive}, Track:{cState.TrackPadTouch1.Id}, Pos:({cState.TrackPadTouch1.X},{cState.TrackPadTouch1.Y}))", false, true);
+                    
+                    // Update last values
+                    lastTouchPacketsN = outDS4Report.bTouchPacketsN;
+                    lastTouchPacketCounter = outDS4Report.sCurrentTouch.bPacketCounter;
+                    
+                    lastTouch1TrackingNum = outDS4Report.sCurrentTouch.bIsUpTrackingNum1;
+                    lastTouch1Data0 = outDS4Report.sCurrentTouch.bTouchData1[0];
+                    lastTouch1Data1 = outDS4Report.sCurrentTouch.bTouchData1[1];
+                    lastTouch1Data2 = outDS4Report.sCurrentTouch.bTouchData1[2];
+                    
+                    lastTouch2TrackingNum = outDS4Report.sCurrentTouch.bIsUpTrackingNum2;
+                    lastTouch2Data0 = outDS4Report.sCurrentTouch.bTouchData2[0];
+                    lastTouch2Data1 = outDS4Report.sCurrentTouch.bTouchData2[1];
+                    lastTouch2Data2 = outDS4Report.sCurrentTouch.bTouchData2[2];
+                }
+            }
+        }
 
         public DS4OutDeviceExt(ViGEmClient client) : base(client)
         {
@@ -200,9 +272,13 @@ namespace DS4Windows
             DS4OutDeviceExtras.CopyBytes(ref outDS4Report, rawOutReportEx);
             //Console.WriteLine("TEST: {0}, {1} {2}", outDS4Report.wGyroX, rawOutReportEx[12], rawOutReportEx[13]);
             //Console.WriteLine("OUTPUT: {0}", string.Join(", ", rawOutReportEx));
+            
+            // Log touchpad ViGEm report data changes
+            LogTouchpadCoordinateChanges(outDS4Report, device);
+            
             cont.SubmitRawReport(rawOutReportEx);
         }
-
+        
         public override void ResetState(bool submit = true)
         {
             outDS4Report = default(DS4_REPORT_EX);

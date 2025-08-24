@@ -174,6 +174,9 @@ namespace DS4WinWPF.DS4Forms
                     break;
                 case 4:
                     break;
+                case 5:
+                    // Emulation mode - no special content needed
+                    break;
 
                 case 0:
                 default:

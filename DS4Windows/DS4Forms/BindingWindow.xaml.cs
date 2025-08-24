@@ -374,6 +374,14 @@ namespace DS4WinWPF.DS4Forms
                 new BindAssociation() { outputType = BindAssociation.OutType.Button, control = DS4Windows.X360Controls.TouchpadClick });
             touchpadClickBtn.Click += OutputButtonBtn_Click;
 
+            associatedBindings.Add(touchLeftBtn,
+                new BindAssociation() { outputType = BindAssociation.OutType.Button, control = DS4Windows.X360Controls.TouchLeft });
+            touchLeftBtn.Click += OutputButtonBtn_Click;
+
+            associatedBindings.Add(touchRightBtn,
+                new BindAssociation() { outputType = BindAssociation.OutType.Button, control = DS4Windows.X360Controls.TouchRight });
+            touchRightBtn.Click += OutputButtonBtn_Click;
+
             associatedBindings.Add(mouseUpBtn,
                 new BindAssociation() { outputType = BindAssociation.OutType.Button, control = DS4Windows.X360Controls.MouseUp });
             mouseUpBtn.Click += OutputButtonBtn_Click;
@@ -827,6 +835,8 @@ namespace DS4WinWPF.DS4Forms
             Canvas.SetLeft(dpadLBtn, 144); Canvas.SetTop(dpadLBtn, 112);
 
             touchpadClickBtn.Visibility = Visibility.Visible;
+            touchLeftBtn.Visibility = Visibility.Visible;
+            touchRightBtn.Visibility = Visibility.Visible;
         }
 
         private void RegBindRadio_Click(object sender, RoutedEventArgs e)

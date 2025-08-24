@@ -324,6 +324,9 @@
 
                         <CheckBox Content="{lex:Loc CheckUpdateStartup}" Margin="{StaticResource spaceMargin}"
                               IsChecked="{Binding CheckForUpdates}" />
+                        <CheckBox Content="Enable Touchpad ViGEm Logging" Margin="{StaticResource spaceMargin}"
+                              IsChecked="{Binding EnableTouchpadViGEmLogging}"
+                              ToolTip="Log touchpad coordinate changes sent to ViGEmBus driver" />
                         <StackPanel x:Name="checkEveryOptionsStack" Orientation="Horizontal" Margin="{StaticResource spaceMargin}"
                                 IsEnabled="{Binding CheckForUpdates}">
                             <Label Content="{lex:Loc CheckEvery}" />

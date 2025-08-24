@@ -2347,9 +2347,11 @@ namespace DS4Windows
 
             cState.calculateStickAngles();
             DS4StateFieldMapping fieldMapping = fieldMappings[device];
-            fieldMapping.PopulateFieldMapping(cState, eState, tp);
+            fieldMapping.PopulateFieldMapping(cState, eState, tp, false);
             DS4StateFieldMapping outputfieldMapping = outputFieldMappings[device];
-            outputfieldMapping.PopulateFieldMapping(cState, eState, tp);
+            outputfieldMapping.PopulateFieldMapping(cState, eState, tp, false);
+            
+
             //DS4StateFieldMapping fieldMapping = new DS4StateFieldMapping(cState, eState, tp);
             //DS4StateFieldMapping outputfieldMapping = new DS4StateFieldMapping(cState, eState, tp);
 
@@ -3579,8 +3581,36 @@ namespace DS4Windows
                     {
                         bool value = GetBoolMapping(device, dcs.control, cState, eState, tp, fieldMapping);
                         if (value)
-                            outputfieldMapping.outputTouchButton = value;
+                        {
+                            outputfieldMapping.outputTouchButton = true;
+                        }
                     }
+                    else if (xboxControl == X360Controls.TouchLeft)
+                    {
+                        bool value = GetBoolActionMapping(device, dcs.control, cState, eState, tp, fieldMapping);
+                        
+                        if (value)
+                        {
+                            outputfieldMapping.outputTouchButton = true; // Trigger ViGEmBus touchpad click
+                            // Set touchpad coordinates for left zone
+                            outputfieldMapping.touchpadX = 240; // Top left zone, close to left border
+                            outputfieldMapping.touchpadY = 235; // Top left zone, close to top border
+                            outputfieldMapping.touchpadActive = true;
+                        }
+                    }
+                    else if (xboxControl == X360Controls.TouchRight)
+                    {
+                        bool value = GetBoolActionMapping(device, dcs.control, cState, eState, tp, fieldMapping);   
+                        if (value)
+                        {
+                            outputfieldMapping.outputTouchButton = true; // Trigger ViGEmBus touchpad click
+                            // Set touchpad coordinates for right zone
+                            outputfieldMapping.touchpadX = 1680; // Top right zone, close to right border
+                            outputfieldMapping.touchpadY = 235; // Top right zone, close to top border
+                            outputfieldMapping.touchpadActive = true;
+                        }
+                    }
+
                     else if (xboxControl >= X360Controls.LeftMouse && xboxControl <= X360Controls.WDOWN)
                     {
                         switch (xboxControl)
@@ -3787,6 +3817,8 @@ namespace DS4Windows
                         }
                     }
 
+
+                    
                     // erase default mappings for things that are remapped
                     ResetToDefaultValue(dcs.control, MappedState, outputfieldMapping);
                 }
@@ -6731,5 +6763,7 @@ namespace DS4Windows
             }
             queue.Enqueue(new DS4TimedStickAxisValue(axisXValue, axisYValue, timestamp));
         }
+
+
     }
 }

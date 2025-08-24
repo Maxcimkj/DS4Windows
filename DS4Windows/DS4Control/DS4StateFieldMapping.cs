@@ -30,6 +30,9 @@ namespace DS4Windows
         public bool[] swipedirbools = new bool[(int)DS4Controls.RSOuter + 1];
         public bool touchButton = false;
         public bool outputTouchButton = false;
+        public short touchpadX = 0;
+        public short touchpadY = 0;
+        public bool touchpadActive = false;
 
         public static ControlType[] mappedType = new ControlType[54]
         {
@@ -175,6 +178,11 @@ namespace DS4Windows
 
                 touchButton = cState.TouchButton;
                 outputTouchButton = cState.OutputTouchButton;
+                
+                // Use physical touchpad data
+                touchpadActive = cState.TrackPadTouch0.IsActive;
+                touchpadX = cState.TrackPadTouch0.X;
+                touchpadY = cState.TrackPadTouch0.Y;
             }
         }
 
@@ -224,6 +232,26 @@ namespace DS4Windows
                 state.DpadLeft = buttons[(int)DS4Controls.DpadLeft];
                 state.TouchButton = touchButton;
                 state.OutputTouchButton = outputTouchButton;
+                
+                // Set touchpad coordinates from field mapping
+                state.TrackPadTouch0.X = touchpadX;
+                state.TrackPadTouch0.Y = touchpadY;
+                state.TrackPadTouch0.IsActive = touchpadActive;
+                // Set RawTrackingNum with active state in bit 7 (0x80) and tracking number in bits 6-0
+                // IMPORTANT: DS4 protocol has INVERTED logic - bit 7 = 0 means ACTIVE, bit 7 = 1 means INACTIVE
+                // Use tracking number 1 for Touch0 (primary touch point)
+                state.TrackPadTouch0.RawTrackingNum = touchpadActive ? (byte)0x01 : (byte)0x80; // 0x01 = active + tracking num 1, 0x80 = inactive + tracking num 0
+                state.TrackPadTouch0.Id = touchpadActive ? (byte)1 : (byte)0; // Set Id field to match tracking number
+                
+                // Always reset Touch1 coordinates to ensure clean state
+                state.TrackPadTouch1.X = 0;
+                state.TrackPadTouch1.Y = 0;
+                state.TrackPadTouch1.IsActive = false;
+                // Use tracking number 2 for Touch1 (secondary touch point)
+                // Follow same logic as Touch0: inactive when touchpad is inactive
+                // IMPORTANT: DS4 protocol has INVERTED logic - bit 7 = 0 means ACTIVE, bit 7 = 1 means INACTIVE
+                state.TrackPadTouch1.RawTrackingNum = 0x82; // 0x82 = inactive + tracking num 2 (bit 7 = 1)
+                state.TrackPadTouch1.Id = 2; // Set Id field to match tracking number
             }
         }
     }

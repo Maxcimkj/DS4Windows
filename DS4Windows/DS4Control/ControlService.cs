@@ -2390,6 +2390,15 @@ namespace DS4Windows
 
         public void TouchPadOn(int ind, DS4Device device)
         {
+            // Skip Mouse.cs event subscriptions if in Emulation mode
+            TouchpadOutMode tempMode = Global.TouchOutMode[ind];
+            if (tempMode == TouchpadOutMode.Emulation)
+            {
+                // Log that Mouse.cs processing is disabled for Emulation mode
+                AppLogger.LogToGui($"Emulation Mode [Device {ind + 1}]: Skipping Mouse.cs event subscriptions - only mapped actions control touchpad", false, true);
+                return;
+            }
+            
             Mouse tPad = touchPad[ind];
             //ITouchpadBehaviour tPad = touchPad[ind];
             device.Touchpad.TouchButtonDown += tPad.touchButtonDown;
@@ -2707,6 +2716,9 @@ namespace DS4Windows
 
                 cState = Mapping.SetCurveAndDeadzone(ind, cState, TempState[ind]);
 
+                // Reset physical touchpad data in emulation mode to prevent interference
+                cState = ResetTouchpadStateForEmulation(ind, cState);
+
                 if (!recordingMacro && (useTempProfile[ind] ||
                     containsCustomAction(ind) || containsCustomExtras(ind) ||
                     getProfileActionCount(ind) > 0))
@@ -2727,8 +2739,14 @@ namespace DS4Windows
                     tempMapState.ds4Timestamp = cState.ds4Timestamp;
                     tempMapState.FrameCounter = cState.FrameCounter;
                     tempMapState.TouchPacketCounter = cState.TouchPacketCounter;
-                    tempMapState.TrackPadTouch0 = cState.TrackPadTouch0;
-                    tempMapState.TrackPadTouch1 = cState.TrackPadTouch1;
+                    
+                    // Copy physical touchpad data only in non-emulation modes
+                    // In emulation mode, preserve the emulated coordinates set by Mapping.MapCustom()
+                    if (Global.TouchOutMode[ind] != TouchpadOutMode.Emulation)
+                    {
+                        tempMapState.TrackPadTouch0 = cState.TrackPadTouch0;
+                        tempMapState.TrackPadTouch1 = cState.TrackPadTouch1;
+                    }
 
                     if (isUsingOSCServer())
                     {
@@ -3124,6 +3142,32 @@ namespace DS4Windows
             }
             else
                 touchreleased[deviceID] = true;
+        }
+
+        /// <summary>
+        /// Resets physical touchpad state in emulation mode to prevent interference with emulated touchpad controls
+        /// </summary>
+        /// <param name="deviceID">Device index</param>
+        /// <param name="cState">Current controller state to reset</param>
+        /// <returns>Modified controller state with reset touchpad data</returns>
+        private DS4State ResetTouchpadStateForEmulation(int deviceID, DS4State cState)
+        {
+            if (Global.TouchOutMode[deviceID] == TouchpadOutMode.Emulation)
+            {
+                cState.TrackPadTouch0.IsActive = false;
+                cState.TrackPadTouch0.X = 0;
+                cState.TrackPadTouch0.Y = 0;
+                cState.TrackPadTouch0.RawTrackingNum = 0x80; // Inactive + tracking num 0
+                cState.TrackPadTouch0.Id = 0;
+                
+                cState.TrackPadTouch1.IsActive = false;
+                cState.TrackPadTouch1.X = 0;
+                cState.TrackPadTouch1.Y = 0;
+                cState.TrackPadTouch1.RawTrackingNum = 0x82; // Inactive + tracking num 2
+                cState.TrackPadTouch1.Id = 2;
+            }
+            
+            return cState;
         }
 
         public void StartTPOff(int deviceID)

@@ -1231,6 +1231,7 @@
                                 <ComboBoxItem Content="{lex:Loc MouseJoystick}" />
                                 <ComboBoxItem Content="{lex:Loc AbsoluteMouse}" />
                                 <ComboBoxItem Content="{lex:Loc Passthru}" />
+                                <ComboBoxItem Content="Emulation" />
                             </ComboBox>
                         </StackPanel>
 
@@ -1525,6 +1526,34 @@
                                     </TextBlock>
                                 </StackPanel>
 
+                            </TabItem>
+                            <TabItem Header="Emulation" Visibility="Collapsed">
+                                <StackPanel>
+                                    <TextBlock TextWrapping="Wrap" Margin="0,0,0,10">
+                                        <Run Text="In this mode, the physical touchpad is disabled. Only mapped virtual controls can emulate touchpad interactions. These virtual controls can be remapped in the main Button Mapping UI."/>
+                                    </TextBlock>
+                                    
+                                    <GroupBox Header="Touchpad Virtual Controls" Margin="0,0,0,10">
+                                        <StackPanel>
+                                            <TextBlock Margin="0,0,0,5">
+                                                <Run Text="TouchLeft" FontWeight="Bold" Foreground="#007ACC"/>
+                                                <Run Text=": Left side of touchpad (X: 240, Y: 235)"/>
+                                            </TextBlock>
+                                            <TextBlock Margin="0,0,0,5">
+                                                <Run Text="TouchpadClick" FontWeight="Bold" Foreground="#007ACC"/>
+                                                <Run Text=": Center of touchpad (X: 960, Y: 471)"/>
+                                            </TextBlock>
+                                            <TextBlock Margin="0,0,0,5">
+                                                <Run Text="TouchRight" FontWeight="Bold" Foreground="#007ACC"/>
+                                                <Run Text=": Right side of touchpad (X: 1680, Y: 235)"/>
+                                            </TextBlock>
+                                        </StackPanel>
+                                    </GroupBox>
+                                    
+                                    <TextBlock TextWrapping="Wrap" Margin="0,0,0,10">
+                                        <Run Text="To use this mode, map buttons (like Share, Options, etc.) to TouchLeft, TouchRight, or TouchpadClick actions in the Button Mapping section."/>
+                                    </TextBlock>
+                                </StackPanel>
                             </TabItem>
                         </TabControl>
                     </StackPanel>

@@ -1873,6 +1873,8 @@ namespace DS4WinWPF.DS4Forms.ViewModels
                         index = 3; break;
                     case TouchpadOutMode.Passthru:
                         index = 4; break;
+                    case TouchpadOutMode.Emulation:
+                        index = 5; break;
                     default: break;
                 }
                 return index;
@@ -1891,6 +1893,8 @@ namespace DS4WinWPF.DS4Forms.ViewModels
                         temp = TouchpadOutMode.AbsoluteMouse; break;
                     case 4:
                         temp = TouchpadOutMode.Passthru; break;
+                    case 5:
+                        temp = TouchpadOutMode.Emulation; break;
                     default: break;
                 }
 
